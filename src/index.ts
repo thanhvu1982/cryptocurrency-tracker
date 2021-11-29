@@ -1,13 +1,13 @@
-import { app, BrowserWindow, Tray } from "electron";
-import path from "path";
-import isDev from "electron-is-dev";
+import { app, BrowserWindow, Tray } from 'electron';
+import path from 'path';
+import isDev from 'electron-is-dev';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 
 let tray: Tray;
 let window: BrowserWindow;
 
-if (require("electron-squirrel-startup")) {
+if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
@@ -24,7 +24,7 @@ const createWindow = (): void => {
   window.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   window.webContents.openDevTools();
 
-  window.on("blur", () => {
+  window.on('blur', () => {
     if (!window.webContents.isDevToolsOpened()) {
       window.hide();
     }
@@ -36,7 +36,7 @@ const showWindow = (): void => {
   const trayBounds = tray.getBounds();
 
   const x = Math.round(
-    trayBounds.x + trayBounds.width / 2 - windowBounds.width / 2
+    trayBounds.x + trayBounds.width / 2 - windowBounds.width / 2,
   );
   const y = Math.round(trayBounds.y + trayBounds.height + 4);
   window.setPosition(x, y, false);
@@ -44,8 +44,8 @@ const showWindow = (): void => {
 };
 
 const createTray = (): void => {
-  tray = new Tray(path.join(__dirname, "../../assets/icon.png"));
-  tray.on("click", () => {
+  tray = new Tray(path.join(__dirname, '../../assets/icon.png'));
+  tray.on('click', () => {
     if (window.isVisible()) {
       window.hide();
     } else {
@@ -56,7 +56,7 @@ const createTray = (): void => {
 
 app.dock.hide();
 
-app.on("ready", () => {
+app.on('ready', () => {
   createTray();
   createWindow();
 });
