@@ -33,6 +33,13 @@ const globalSlice = createSlice({
       );
       state.trackedCurrencyIds = storedTrackedCurrencyIds;
     },
+    updateTrackedCurrencyIds: (state, action: PayloadAction<number[]>) => {
+      state.trackedCurrencyIds = action.payload;
+      localStorage.setItem(
+        'trackedCurrencyIds',
+        JSON.stringify(action.payload),
+      );
+    },
     updatePrice: (state, action: PayloadAction<Price>) => {
       const foundPriceIndex = state.trackedCurrencyPrices.findIndex(
         (price) => price.id === action.payload.id,

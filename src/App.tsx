@@ -8,6 +8,7 @@ import { PriceResponse } from './models/Price';
 import GlobalStyles from './styles/GlobalStyles';
 import DefaultLayout from './components/layouts/DefaultLayout';
 import theme from './themes/defaultTheme';
+import HomeScreen from './screens/Home';
 
 const App: FC = () => {
   const dispatch = useAppDispatch();
@@ -58,7 +59,9 @@ const App: FC = () => {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyles />
-      <DefaultLayout>csd</DefaultLayout>
+      <DefaultLayout>
+        <HomeScreen />
+      </DefaultLayout>
     </ThemeProvider>
   );
 };
