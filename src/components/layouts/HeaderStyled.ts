@@ -15,6 +15,7 @@ export const HeaderButton = styled.button`
   background-color: transparent;
   color: ${(props) => props.theme.colors.textSecondary};
   transition: color 0.2s ease-in-out;
+  outline: none;
 
   &:hover {
     color: ${(props) => props.theme.colors.primary};
