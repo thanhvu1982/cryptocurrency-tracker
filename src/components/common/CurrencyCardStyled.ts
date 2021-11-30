@@ -31,6 +31,7 @@ export const CurrencyCardInfo = styled.div`
   width: 95px;
   height: 100%;
   overflow: hidden;
+  margin-right: 6px;
 `;
 
 export const CurrencyCardTitle = styled.h4`
@@ -50,7 +51,7 @@ export const CurrencyCardChart = styled.img<{
   status: 'positive' | 'negative' | 'neutral';
 }>`
   height: 38px;
-  width: 100px;
+  width: 94px;
   filter: ${(props) =>
     props.status === 'positive'
       ? 'hue-rotate(85deg) saturate(80%) brightness(0.85)'
