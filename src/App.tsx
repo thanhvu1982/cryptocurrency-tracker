@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { ThemeProvider } from 'styled-components';
 import { useAppDispatch, useAppSelector } from './app/hooks/redux';
 import { globalActions } from './app/store/global/globalSlice';
@@ -7,15 +7,18 @@ import DefaultLayout from './components/layouts/DefaultLayout';
 import { COINMARKETCAP_SOCKET } from './constants/configs';
 import { PriceResponse } from './models/Price';
 import HomeScreen from './screens/Home';
+import ScreensWrapper from './components/common/ScreensWrapper';
 import GlobalStyles from './styles/GlobalStyles';
 import theme from './themes/defaultTheme';
+import LoadingScreen from './screens/Loading';
 
 const App: FC = () => {
   const dispatch = useAppDispatch();
-  const [ws, setWs] = React.useState<WebSocket | null>(null);
+  const [ws, setWs] = useState<WebSocket | null>(null);
   const trackedCurrencyIds = useAppSelector(
     (state) => state.global.trackedCurrencyIds,
   );
+  const currencies = useAppSelector((state) => state.global.currencies);
 
   useEffect(() => {
     dispatch(fetchCurrenciesThunk());
@@ -56,9 +59,15 @@ const App: FC = () => {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyles />
-      <DefaultLayout>
-        <HomeScreen />
-      </DefaultLayout>
+      {currencies.loading ? (
+        <LoadingScreen />
+      ) : (
+        <DefaultLayout>
+          <ScreensWrapper>
+            <HomeScreen />
+          </ScreensWrapper>
+        </DefaultLayout>
+      )}
     </ThemeProvider>
   );
 };
