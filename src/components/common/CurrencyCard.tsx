@@ -1,6 +1,6 @@
 import React, { FC, memo, useEffect, useMemo, useState } from 'react';
 import { ImpulseSpinner } from 'react-spinners-kit';
-import { useAppSelector } from '../../app/hooks/redux';
+import { useAppSelector, useAppDispatch } from '../../app/hooks/redux';
 import { formatPrice } from '../../utils/formatPrice';
 import {
   CurrencyCardChart,
@@ -13,13 +13,17 @@ import {
   CurrencyCardSymbol,
   CurrencyCardTitle,
   CurrencyCardWrapper,
+  CurrencyCardDeleteButton,
 } from './CurrencyCardStyled';
+import { Trash2 } from 'react-feather';
+import { globalActions } from '../../app/store/global/globalSlice';
 
 interface CurrencyCardProps {
   id: number;
 }
 
 const CurrencyCard: FC<CurrencyCardProps> = ({ id }) => {
+  const dispatch = useAppDispatch();
   const [imageKey, setImageKey] = useState(new Date().getTime());
 
   const currency = useAppSelector((state) => {
@@ -30,6 +34,8 @@ const CurrencyCard: FC<CurrencyCardProps> = ({ id }) => {
     const cP = state.global.trackedCurrencyPrices.find((c) => c.id === id);
     return cP;
   });
+
+  const editMode = useAppSelector((state) => state.global.editMode);
 
   const status = useMemo(() => {
     if (!price?.p24h) {
@@ -49,9 +55,17 @@ const CurrencyCard: FC<CurrencyCardProps> = ({ id }) => {
     setImageKey(new Date().getTime());
   }, [price?.p]);
 
+  const onDeleteCurrency = () => {
+    dispatch(globalActions.removeTrackedCurrencyId(id));
+  };
+
   return (
     <CurrencyCardWrapper>
+      <CurrencyCardDeleteButton onClick={onDeleteCurrency} show={editMode}>
+        <Trash2 size={18} />
+      </CurrencyCardDeleteButton>
       <CurrencyCardIcon
+        show={!editMode}
         src={`https://s2.coinmarketcap.com/static/img/coins/64x64/${id}.png`}
       />
       <CurrencyCardInfo>

@@ -8,6 +8,8 @@ export const CurrencyCardWrapper = styled.div`
   height: 70px;
   border-bottom: 1px solid ${(props) => props.theme.colors.paper};
   user-select: none;
+  overflow: hidden;
+  position: relative;
 
   img {
     -webkit-user-drag: none;
@@ -17,9 +19,11 @@ export const CurrencyCardWrapper = styled.div`
   }
 `;
 
-export const CurrencyCardIcon = styled.img`
+export const CurrencyCardIcon = styled.img<{ show: boolean }>`
   width: 38px;
   margin-right: 16px;
+  opacity: ${(props) => (props.show ? 1 : 0)};
+  transition: all 0.2s;
 `;
 
 export const CurrencyCardInfo = styled.div`
@@ -82,4 +86,22 @@ export const CurrencyCardLoadingWrapper = styled.div`
   justify-content: flex-end;
   width: 195px;
   padding-right: 16px;
+`;
+
+export const CurrencyCardDeleteButton = styled.button<{ show: boolean }>`
+  width: 38px;
+  height: 38px;
+  position: absolute;
+  background-color: red;
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s ease-in-out;
+  opacity: ${(props) => (props.show ? 1 : 0)};
+  left: ${(props) => (props.show ? '16px' : '-16px')};
+  z-index: 10;
 `;
