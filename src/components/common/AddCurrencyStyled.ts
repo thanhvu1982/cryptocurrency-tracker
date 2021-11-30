@@ -3,9 +3,9 @@ import styled from 'styled-components';
 export const AddCurrencyWrapper = styled.div<{ show: boolean }>`
   width: 100%;
   height: 100%;
-  position: absolute;
+  position: fixed;
   padding: 16px;
-  top: 0;
+  top: 43px;
   left: 0;
   z-index: 20;
   background: ${(props) => props.theme.colors.background};

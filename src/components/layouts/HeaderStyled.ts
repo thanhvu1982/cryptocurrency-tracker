@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 
 export const HeaderWrapper = styled.header`
+  position: relative;
+  z-index: 30;
   width: 100%;
   background-color: ${(props) => props.theme.colors.paper};
   display: flex;
