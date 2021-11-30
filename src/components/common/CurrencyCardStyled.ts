@@ -10,6 +10,7 @@ export const CurrencyCardWrapper = styled.div`
   user-select: none;
   overflow: hidden;
   position: relative;
+  background-color: ${(props) => props.theme.colors.background};
 
   img {
     -webkit-user-drag: none;
