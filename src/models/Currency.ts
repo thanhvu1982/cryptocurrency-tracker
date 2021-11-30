@@ -5,5 +5,5 @@ export interface Currency {
   slug: string;
   rank: number;
   status: string;
-  is_active: boolean;
+  is_active: number;
 }

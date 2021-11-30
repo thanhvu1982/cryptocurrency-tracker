@@ -12,6 +12,7 @@ interface GlobalState {
   trackedCurrencyIds: number[];
   trackedCurrencyPrices: Price[];
   editMode: boolean;
+  addMode: boolean;
 }
 
 const initialState: GlobalState = {
@@ -23,6 +24,7 @@ const initialState: GlobalState = {
   trackedCurrencyIds: [],
   trackedCurrencyPrices: [],
   editMode: false,
+  addMode: false,
 };
 
 const globalSlice = createSlice({
@@ -51,6 +53,13 @@ const globalSlice = createSlice({
         JSON.stringify(state.trackedCurrencyIds),
       );
     },
+    addTrackedCurrencyId: (state, action: PayloadAction<number>) => {
+      state.trackedCurrencyIds.push(action.payload);
+      localStorage.setItem(
+        'trackedCurrencyIds',
+        JSON.stringify(state.trackedCurrencyIds),
+      );
+    },
     updatePrice: (state, action: PayloadAction<Price>) => {
       const foundPriceIndex = state.trackedCurrencyPrices.findIndex(
         (price) => price.id === action.payload.id,
@@ -63,6 +72,9 @@ const globalSlice = createSlice({
     },
     toggleEditMode: (state) => {
       state.editMode = !state.editMode;
+    },
+    toggleAddMode: (state) => {
+      state.addMode = !state.addMode;
     },
   },
   extraReducers: (builder) => {
