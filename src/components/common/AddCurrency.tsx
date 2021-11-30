@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC, useState } from 'react';
+import React, { ChangeEvent, FC, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks/redux';
 import { globalActions } from '../../app/store/global/globalSlice';
 import { Currency } from '../../models/Currency';
@@ -15,6 +15,7 @@ import {
 } from './AddCurrencyStyled';
 
 const AddCurrency: FC = () => {
+  const inputRef = useRef<HTMLInputElement>(null);
   const dispatch = useAppDispatch();
   const addMode = useAppSelector((state) => state.global.addMode);
   const currencies = useAppSelector((state) => state.global.currencies);
@@ -43,12 +44,16 @@ const AddCurrency: FC = () => {
     dispatch(globalActions.addTrackedCurrencyId(id));
     setFoundCurrencies([]);
     dispatch(globalActions.toggleAddMode());
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
   }
 
   return (
     <AddCurrencyWrapper show={addMode}>
       <AddCurrencyTitle>New Currency</AddCurrencyTitle>
       <AddCurrencyTextField
+        ref={inputRef}
         placeholder="Bitcoin, BTC,..."
         onChange={onTextChange}
       />
