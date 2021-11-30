@@ -33,6 +33,7 @@ export const CurrencyCardTitle = styled.h4`
   overflow: hidden;
   text-overflow: ellipsis;
   margin-bottom: 1px;
+  white-space: nowrap;
 `;
 
 export const CurrencyCardSymbol = styled.span`
@@ -40,13 +41,17 @@ export const CurrencyCardSymbol = styled.span`
   color: ${(props) => props.theme.colors.textSecondary};
 `;
 
-export const CurrencyCardChart = styled.img<{ status: 'inc' | 'dec' }>`
+export const CurrencyCardChart = styled.img<{
+  status: 'positive' | 'negative' | 'neutral';
+}>`
   height: 38px;
   width: 100px;
   filter: ${(props) =>
-    props.status === 'inc'
+    props.status === 'positive'
       ? 'hue-rotate(85deg) saturate(80%) brightness(0.85)'
-      : 'hue-rotate(300deg) saturate(210%) brightness(0.7) contrast(170%)'};
+      : props.status === 'negative'
+      ? 'hue-rotate(300deg) saturate(210%) brightness(0.7) contrast(170%)'
+      : 'brightness(0) invert(1)'};
 `;
 
 export const CurrencyCardPrice = styled.div`
@@ -60,6 +65,21 @@ export const CurrencyCardPriceValue = styled.h4`
   font-size: 14px;
 `;
 
-export const CurrencyCardPriceChange = styled.span`
+export const CurrencyCardPriceChange = styled.span<{
+  status: 'positive' | 'negative' | 'neutral';
+}>`
   font-size: 12px;
+  color: ${(props) =>
+    props.status === 'positive'
+      ? props.theme.colors.positive
+      : props.status === 'negative'
+      ? props.theme.colors.negative
+      : props.theme.colors.text};
+`;
+
+export const CurrencyCardLoadingWrapper = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  width: 195px;
+  padding-right: 16px;
 `;

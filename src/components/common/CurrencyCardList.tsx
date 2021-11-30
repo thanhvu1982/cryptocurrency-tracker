@@ -41,15 +41,19 @@ const CurrencyCardList: FC = () => {
       <Droppable droppableId="droppable">
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
-            {trackedCurrencyIds.map((id, index) => (
-              <Draggable key={id} draggableId={id.toString()} index={index}>
+            {trackedCurrencyIds.map((trackedCurrencyId, index) => (
+              <Draggable
+                key={trackedCurrencyId}
+                draggableId={trackedCurrencyId.toString()}
+                index={index}
+              >
                 {(provided) => (
                   <div
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
                   >
-                    <CurrencyCard id={id} />
+                    <CurrencyCard id={trackedCurrencyId} />
                   </div>
                 )}
               </Draggable>

@@ -1,6 +1,7 @@
 import { app, BrowserWindow, Tray } from 'electron';
-import path from 'path';
+import * as installer from 'electron-devtools-installer';
 import isDev from 'electron-is-dev';
+import path from 'path';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 
@@ -11,10 +12,19 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
+const installExtensions = async () => {
+  const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
+
+  return Promise.all([
+    installer.default(installer.REDUX_DEVTOOLS, forceDownload),
+    installer.default(installer.REACT_DEVELOPER_TOOLS, forceDownload),
+  ]);
+};
+
 const createWindow = (): void => {
   window = new BrowserWindow({
-    height: 395,
-    width: isDev ? 1000 : 360,
+    height: 420,
+    width: isDev ? 1000 : 376,
     show: false,
     frame: false,
     fullscreenable: false,
@@ -22,7 +32,7 @@ const createWindow = (): void => {
   });
 
   window.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-  window.webContents.openDevTools();
+  if (isDev) window.webContents.openDevTools();
 
   window.on('blur', () => {
     if (!window.webContents.isDevToolsOpened()) {
@@ -56,7 +66,8 @@ const createTray = (): void => {
 
 app.dock.hide();
 
-app.on('ready', () => {
+app.on('ready', async () => {
+  if (isDev) await installExtensions();
   createTray();
   createWindow();
 });

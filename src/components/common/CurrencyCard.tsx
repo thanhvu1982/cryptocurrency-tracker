@@ -1,38 +1,86 @@
-import React, { FC } from 'react';
+import React, { FC, memo, useEffect, useMemo, useState } from 'react';
+import { ImpulseSpinner } from 'react-spinners-kit';
+import { useAppSelector } from '../../app/hooks/redux';
+import { formatPrice } from '../../utils/formatPrice';
 import {
-  CurrencyCardWrapper,
+  CurrencyCardChart,
   CurrencyCardIcon,
   CurrencyCardInfo,
-  CurrencyCardTitle,
-  CurrencyCardSymbol,
-  CurrencyCardChart,
+  CurrencyCardLoadingWrapper,
   CurrencyCardPrice,
-  CurrencyCardPriceValue,
   CurrencyCardPriceChange,
+  CurrencyCardPriceValue,
+  CurrencyCardSymbol,
+  CurrencyCardTitle,
+  CurrencyCardWrapper,
 } from './CurrencyCardStyled';
 
 interface CurrencyCardProps {
   id: number;
 }
 
-const CurrencyCard: FC<CurrencyCardProps> = () => {
+const CurrencyCard: FC<CurrencyCardProps> = ({ id }) => {
+  const [imageKey, setImageKey] = useState(new Date().getTime());
+
+  const currency = useAppSelector((state) => {
+    return state.global.currencies.data.find((c) => c.id === id);
+  });
+
+  const price = useAppSelector((state) => {
+    const cP = state.global.trackedCurrencyPrices.find((c) => c.id === id);
+    return cP;
+  });
+
+  const status = useMemo(() => {
+    if (!price?.p24h) {
+      return 'neutral';
+    } else {
+      if (price?.p24h < 0) {
+        return 'negative';
+      } else if (price?.p24h === 0) {
+        return 'neutral';
+      } else {
+        return 'positive';
+      }
+    }
+  }, [price?.p1h]);
+
+  useEffect(() => {
+    setImageKey(new Date().getTime());
+  }, [price?.p]);
+
   return (
     <CurrencyCardWrapper>
-      <CurrencyCardIcon src="https://s2.coinmarketcap.com/static/img/coins/64x64/1.png" />
-      <CurrencyCardInfo>
-        <CurrencyCardTitle>Bitcoin</CurrencyCardTitle>
-        <CurrencyCardSymbol>BTC</CurrencyCardSymbol>
-      </CurrencyCardInfo>
-      <CurrencyCardChart
-        status="dec"
-        src="https://s3.coinmarketcap.com/generated/sparklines/web/1d/2781/1.svg"
+      <CurrencyCardIcon
+        src={`https://s2.coinmarketcap.com/static/img/coins/64x64/${id}.png`}
       />
-      <CurrencyCardPrice>
-        <CurrencyCardPriceValue>$58,327.18</CurrencyCardPriceValue>
-        <CurrencyCardPriceChange>-0.15%</CurrencyCardPriceChange>
-      </CurrencyCardPrice>
+      <CurrencyCardInfo>
+        <CurrencyCardTitle>{currency?.name}</CurrencyCardTitle>
+        <CurrencyCardSymbol>{currency?.symbol}</CurrencyCardSymbol>
+      </CurrencyCardInfo>
+      {price ? (
+        <>
+          <CurrencyCardChart
+            key={imageKey}
+            status={status}
+            src={`https://s3.coinmarketcap.com/generated/sparklines/web/1d/2781/${id}.${'svg'}`}
+          />
+          <CurrencyCardPrice>
+            <CurrencyCardPriceValue>
+              {formatPrice(price?.p || 0)}
+            </CurrencyCardPriceValue>
+            <CurrencyCardPriceChange status={status}>
+              {price?.p24h.toFixed(2) || 0}%
+            </CurrencyCardPriceChange>
+          </CurrencyCardPrice>
+        </>
+      ) : (
+        <CurrencyCardLoadingWrapper>
+          <ImpulseSpinner size={26} frontColor="rgb(16, 140, 189)" />
+        </CurrencyCardLoadingWrapper>
+      )}
     </CurrencyCardWrapper>
   );
 };
 
-export default CurrencyCard;
+export default memo(CurrencyCard);

@@ -3,16 +3,15 @@ import { ThemeProvider } from 'styled-components';
 import { useAppDispatch, useAppSelector } from './app/hooks/redux';
 import { globalActions } from './app/store/global/globalSlice';
 import { fetchCurrenciesThunk } from './app/store/global/globalThunk';
+import DefaultLayout from './components/layouts/DefaultLayout';
 import { COINMARKETCAP_SOCKET } from './constants/configs';
 import { PriceResponse } from './models/Price';
-import GlobalStyles from './styles/GlobalStyles';
-import DefaultLayout from './components/layouts/DefaultLayout';
-import theme from './themes/defaultTheme';
 import HomeScreen from './screens/Home';
+import GlobalStyles from './styles/GlobalStyles';
+import theme from './themes/defaultTheme';
 
 const App: FC = () => {
   const dispatch = useAppDispatch();
-  const currenciesState = useAppSelector((state) => state.global.currencies);
   const [ws, setWs] = React.useState<WebSocket | null>(null);
   const trackedCurrencyIds = useAppSelector(
     (state) => state.global.trackedCurrencyIds,
@@ -24,11 +23,9 @@ const App: FC = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (currenciesState.data.length > 0) {
-      ws?.close();
-      setWs(new WebSocket(COINMARKETCAP_SOCKET));
-    }
-  }, [trackedCurrencyIds, currenciesState.data.length, trackedCurrencyIds]);
+    ws?.close();
+    setWs(new WebSocket(COINMARKETCAP_SOCKET));
+  }, [trackedCurrencyIds.length]);
 
   useEffect(() => {
     if (ws && trackedCurrencyIds.length > 0) {
