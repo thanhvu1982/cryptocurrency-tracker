@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Tray } from 'electron';
+import { app, BrowserWindow, Menu, Tray } from 'electron';
 import * as installer from 'electron-devtools-installer';
 import isDev from 'electron-is-dev';
 import path from 'path';
@@ -54,13 +54,19 @@ const showWindow = (): void => {
 };
 
 const createTray = (): void => {
-  tray = new Tray(path.join(__dirname, '../../assets/icon.png'));
+  tray = new Tray(path.resolve(__dirname, 'assets/icon.png'));
   tray.on('click', () => {
     if (window.isVisible()) {
       window.hide();
     } else {
       showWindow();
     }
+  });
+  const contextMenu = Menu.buildFromTemplate([
+    { label: 'Quit', type: 'normal', click: () => app.quit() },
+  ]);
+  tray.on('right-click', () => {
+    tray.popUpContextMenu(contextMenu);
   });
 };
 

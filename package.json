@@ -1,8 +1,8 @@
 {
   "name": "cryptocurrency-tracker",
-  "productName": "cryptocurrency-tracker",
+  "productName": "Cryptocurrency Tracker",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "Follow cryptocurrency prices on CoinMarketCap",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
@@ -19,7 +19,10 @@
   "license": "MIT",
   "config": {
     "forge": {
-      "packagerConfig": {},
+      "packagerConfig": {
+        "icon": "./assets/icon.icns",
+        "appId": "com.misa198.cryptocurrency-tracker"
+      },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
