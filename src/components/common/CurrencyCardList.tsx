@@ -8,6 +8,7 @@ import {
 import { useAppDispatch, useAppSelector } from '../../app/hooks/redux';
 import { globalActions } from '../../app/store/global/globalSlice';
 import CurrencyCard from './CurrencyCard';
+import CurrencyEmptyList from './CurrencyEmptyList';
 
 const CurrencyCardList: FC = () => {
   const dispatch = useAppDispatch();
@@ -35,6 +36,8 @@ const CurrencyCardList: FC = () => {
     );
     dispatch(globalActions.updateTrackedCurrencyIds(items));
   };
+
+  if (trackedCurrencyIds.length === 0) return <CurrencyEmptyList />;
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>

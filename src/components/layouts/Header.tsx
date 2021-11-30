@@ -8,6 +8,9 @@ const Header: FC = () => {
   const dispatch = useAppDispatch();
   const editMode = useAppSelector((state) => state.global.editMode);
   const addMode = useAppSelector((state) => state.global.addMode);
+  const trackedCurrencyIds = useAppSelector(
+    (state) => state.global.trackedCurrencyIds,
+  );
 
   const toggleEditMode = () => {
     dispatch(globalActions.toggleEditMode());
@@ -20,9 +23,15 @@ const Header: FC = () => {
   return (
     <HeaderWrapper>
       {!addMode && (
-        <HeaderButton onClick={toggleEditMode}>
-          {editMode ? <Check size={16} /> : <Edit size={16} />}
-        </HeaderButton>
+        <>
+          {trackedCurrencyIds.length > 0 ? (
+            <HeaderButton onClick={toggleEditMode}>
+              {editMode ? <Check size={16} /> : <Edit size={16} />}
+            </HeaderButton>
+          ) : (
+            <div style={{ width: '16px' }}></div>
+          )}
+        </>
       )}
       {!editMode && (
         <HeaderButton onClick={toggleAddMode}>
