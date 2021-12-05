@@ -25,9 +25,7 @@ const AddCurrency: FC = () => {
   const [foundCurrencies, setFoundCurrencies] = useState([]);
 
   function onTextChange(e: ChangeEvent<HTMLInputElement>) {
-    const _currencies = JSON.parse(
-      JSON.stringify(currencies.data),
-    ) as Currency[];
+    const _currencies = JSON.parse(JSON.stringify(currencies)) as Currency[];
     const result = _currencies.filter(
       (currency) =>
         (currency.name.toLowerCase().includes(e.target.value.toLowerCase()) ||

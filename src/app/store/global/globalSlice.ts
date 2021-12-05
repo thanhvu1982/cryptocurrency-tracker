@@ -1,14 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Currency } from '../../../models/Currency';
 import { Price } from '../../../models/Price';
-import { fetchCurrenciesThunk } from './globalThunk';
 
 interface GlobalState {
-  currencies: {
-    data: Currency[];
-    loading: boolean;
-    error: boolean;
-  };
+  currencies: Currency[];
   trackedCurrencyIds: number[];
   trackedCurrencyPrices: Price[];
   editMode: boolean;
@@ -16,11 +11,7 @@ interface GlobalState {
 }
 
 const initialState: GlobalState = {
-  currencies: {
-    data: [],
-    loading: false,
-    error: false,
-  },
+  currencies: [],
   trackedCurrencyIds: [],
   trackedCurrencyPrices: [],
   editMode: false,
@@ -31,44 +22,31 @@ const globalSlice = createSlice({
   name: 'global',
   initialState,
   reducers: {
-    setTrackedCurrencyIds: (state) => {
-      const storedTrackedCurrencyIds = JSON.parse(
-        localStorage.getItem('trackedCurrencyIds') || '[]',
-      );
-      state.trackedCurrencyIds = storedTrackedCurrencyIds;
+    setCurrencies: (state, action: PayloadAction<Currency[]>) => {
+      state.currencies = action.payload;
+    },
+    setTrackedCurrencyIds: (state, action: PayloadAction<number[]>) => {
+      state.trackedCurrencyIds = action.payload;
+    },
+    setTrackedCurrencyPrices: (state, action: PayloadAction<Price[]>) => {
+      state.trackedCurrencyPrices = action.payload;
     },
     updateTrackedCurrencyIds: (state, action: PayloadAction<number[]>) => {
-      state.trackedCurrencyIds = action.payload;
-      localStorage.setItem(
-        'trackedCurrencyIds',
-        JSON.stringify(action.payload),
-      );
+      const newValue = action.payload;
+      state.trackedCurrencyIds = newValue;
+      window.Main.send('updateTrackedCurrencyIds', newValue);
     },
     removeTrackedCurrencyId: (state, action: PayloadAction<number>) => {
-      state.trackedCurrencyIds = state.trackedCurrencyIds.filter(
+      const newValue = state.trackedCurrencyIds.filter(
         (id) => id !== action.payload,
       );
-      localStorage.setItem(
-        'trackedCurrencyIds',
-        JSON.stringify(state.trackedCurrencyIds),
-      );
+      state.trackedCurrencyIds = newValue;
+      window.Main.send('updateTrackedCurrencyIds', newValue);
     },
     addTrackedCurrencyId: (state, action: PayloadAction<number>) => {
-      state.trackedCurrencyIds.push(action.payload);
-      localStorage.setItem(
-        'trackedCurrencyIds',
-        JSON.stringify(state.trackedCurrencyIds),
-      );
-    },
-    updatePrice: (state, action: PayloadAction<Price>) => {
-      const foundPriceIndex = state.trackedCurrencyPrices.findIndex(
-        (price) => price.id === action.payload.id,
-      );
-      if (foundPriceIndex !== -1) {
-        state.trackedCurrencyPrices[foundPriceIndex] = action.payload;
-      } else {
-        state.trackedCurrencyPrices.push(action.payload);
-      }
+      const newValue = [...state.trackedCurrencyIds, action.payload];
+      state.trackedCurrencyIds = newValue;
+      window.Main.send('updateTrackedCurrencyIds', newValue);
     },
     toggleEditMode: (state) => {
       state.editMode = !state.editMode;
@@ -76,20 +54,6 @@ const globalSlice = createSlice({
     toggleAddMode: (state) => {
       state.addMode = !state.addMode;
     },
-  },
-  extraReducers: (builder) => {
-    builder.addCase(fetchCurrenciesThunk.pending, (state) => {
-      state.currencies.loading = true;
-      state.currencies.error = false;
-    });
-    builder.addCase(fetchCurrenciesThunk.fulfilled, (state, action) => {
-      state.currencies.data = action.payload;
-      state.currencies.loading = false;
-    });
-    builder.addCase(fetchCurrenciesThunk.rejected, (state) => {
-      state.currencies.loading = false;
-      state.currencies.error = true;
-    });
   },
 });
 

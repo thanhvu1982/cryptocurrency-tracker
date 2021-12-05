@@ -1,9 +1,26 @@
-import { app, BrowserWindow, Menu, Tray } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu, Tray } from 'electron';
 import * as installer from 'electron-devtools-installer';
 import isDev from 'electron-is-dev';
-import path from 'path';
+import * as path from 'path';
+import { fetchCurrencies } from './apis/coinmarketcapApis';
+import Store from 'electron-store';
+import Websocket from 'ws';
+import { COINMARKETCAP_SOCKET } from './constants/configs';
+import { Price, PriceResponse } from './models/Price';
+import { Observable, Subscriber } from 'rxjs';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
+declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
+const TRACKED_CURRENCY_IDS = 'trackedCurrencyIds';
+
+const store = new Store({
+  schema: {
+    trackedCurrencyIds: {
+      type: 'string',
+      default: '[]',
+    },
+  },
+});
 
 let tray: Tray;
 let window: BrowserWindow;
@@ -28,7 +45,10 @@ const createWindow = (): void => {
     show: false,
     frame: false,
     fullscreenable: false,
-    resizable: false,
+    resizable: isDev,
+    webPreferences: {
+      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+    },
   });
 
   window.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
@@ -73,7 +93,105 @@ const createTray = (): void => {
 app.dock.hide();
 
 app.on('ready', async () => {
-  if (isDev) await installExtensions();
   createTray();
+  if (isDev) await installExtensions();
+
+  const currencies = await fetchCurrencies();
+  let trackedCurrencyIds = JSON.parse(
+    (store.get(TRACKED_CURRENCY_IDS) || '[]') as string,
+  );
+  let trackedCurrencyPrices: Price[] = [];
+  let trackedCurrencyIdsSubscriber: Subscriber<number[]>;
+
+  const trackedCurrencyIdsObservable = new Observable<number[]>(
+    (subscriber) => {
+      trackedCurrencyIdsSubscriber = subscriber;
+    },
+  );
+
+  let ws: Websocket;
+
+  const initWs = (currencyIds: number[]) => {
+    ws?.close();
+
+    const _ws = new Websocket(COINMARKETCAP_SOCKET, {
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36',
+      },
+    });
+
+    _ws.on('open', () => {
+      _ws.send(
+        JSON.stringify({
+          method: 'subscribe',
+          id: 'price',
+          data: {
+            cryptoIds: currencyIds,
+            index: null,
+          },
+        }),
+      );
+    });
+
+    _ws.on('error', (e) => {
+      app.quit();
+    });
+
+    return _ws;
+  };
+
+  ws = initWs(trackedCurrencyIds);
+
+  const trackedCurrencyPricesObservable = new Observable<Price[]>(
+    (subscriber) => {
+      const listen = () => {
+        ws.on('message', (data) => {
+          const price = JSON.parse(data.toString('utf8')) as PriceResponse;
+          const foundTrackedPriceId = trackedCurrencyPrices.findIndex(
+            (p) => p.id === price.d.cr.id,
+          );
+          if (foundTrackedPriceId === -1)
+            trackedCurrencyPrices.push(price.d.cr);
+          else trackedCurrencyPrices[foundTrackedPriceId] = price.d.cr;
+          subscriber.next(trackedCurrencyPrices);
+        });
+      };
+      listen();
+
+      trackedCurrencyIdsObservable.subscribe({
+        next(ids) {
+          ws = initWs(ids);
+          listen();
+        },
+      });
+    },
+  );
+
+  ipcMain.on('ready', (event) => {
+    event.reply('ready', {
+      currencies,
+      trackedCurrencyIds,
+      trackedCurrencyPrices,
+    });
+  });
+
+  ipcMain.on('updateTrackedCurrencyIds', (event, data) => {
+    trackedCurrencyIds = data;
+    store.set(TRACKED_CURRENCY_IDS, JSON.stringify(data));
+    trackedCurrencyPrices = trackedCurrencyPrices.filter((p) =>
+      trackedCurrencyIds.includes(p.id),
+    );
+    trackedCurrencyIdsSubscriber.next(data);
+  });
+
+  ipcMain.on('updatePrice', (event) => {
+    trackedCurrencyPricesObservable.subscribe({
+      next(prices) {
+        event.reply('updatePrice', prices);
+      },
+    });
+  });
+
   createWindow();
 });

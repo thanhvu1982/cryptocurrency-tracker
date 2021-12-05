@@ -27,7 +27,7 @@ const CurrencyCard: FC<CurrencyCardProps> = ({ id }) => {
   const [imageKey, setImageKey] = useState(new Date().getTime());
 
   const currency = useAppSelector((state) => {
-    return state.global.currencies.data.find((c) => c.id === id);
+    return state.global.currencies.find((c) => c.id === id);
   });
 
   const price = useAppSelector((state) => {
