@@ -134,7 +134,7 @@ app.on('ready', async () => {
       );
     });
 
-    _ws.on('error', (e) => {
+    _ws.on('error', () => {
       app.quit();
     });
 
